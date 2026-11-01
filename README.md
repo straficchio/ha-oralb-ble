@@ -33,14 +33,63 @@ firmware metadata and stored brushing sessions.
 2. Add this repository URL as an **Integration**.
 3. Install "Oral-B BLE" and restart Home Assistant.
 
-### Manual
+### Manual (web UI only, no SSH client)
 
-Copy `custom_components/oralb_ble` to your Home Assistant
-`config/custom_components/` directory and restart.
+You do not need SSH or Samba. The official **Terminal & SSH** add-on gives
+you a web terminal inside Home Assistant:
+
+1. **Settings → Add-ons → Add-on Store**, install **Terminal & SSH** (or
+   **Studio Code Server**, which also has a terminal), start it and open its
+   **Web UI**.
+2. Paste this into the terminal:
+
+   ```bash
+   curl -L https://github.com/straficchio/ha-oralb-ble/archive/refs/heads/master.tar.gz \
+     -o /tmp/oralb.tar.gz
+   mkdir -p /config/custom_components
+   tar -xzf /tmp/oralb.tar.gz -C /tmp
+   cp -r /tmp/ha-oralb-ble-master/custom_components/oralb_ble \
+     /config/custom_components/
+   ```
+
+3. Restart Home Assistant: **Settings → System → Restart** (or `ha core
+   restart` in the terminal).
+4. **Settings → Devices & Services → Add Integration → Oral-B BLE**.
 
 The integration depends on Home Assistant's `bluetooth` integration. A
 Bluetooth adapter (or a remote ESPHome Bluetooth proxy) must be in range of
 the brush.
+
+### HACS
+
+If HACS is already installed: **HACS → Integrations → ⋮ → Custom
+repositories**, add `https://github.com/straficchio/ha-oralb-ble` as an
+**Integration**, install it, and restart. If HACS is not installed, the
+terminal route above is the shortest path.
+
+## Pairing
+
+Home Assistant has no generic "pair this BLE device" button. For most Oral-B
+brushes you do **not** need to pair manually: BlueZ bonds automatically on
+the first GATT connection when the brush asks for it, and the integration
+performs the app-level unlock (`MGS` written to `FF10`) itself.
+
+If a read fails with an authentication/insufficient-encryption error:
+
+1. Open **Settings → Devices & Services → Oral-B BLE → Configure** and enable
+   **Pair on connect**. This makes the integration ask BlueZ to bond on the
+   next connection. No shell needed.
+2. Close the Oral-B phone app and, if the brush is still bonded to the phone,
+   remove it from the phone's Bluetooth settings. A brush accepts one active
+   connection at a time.
+3. Check **Settings → System → Logs** for the integration's debug message. If
+   bonding still fails, the brush may use a pairing variant that BlueZ cannot
+   complete headlessly; a Bluetooth proxy or a USB adapter with a working
+   BlueZ agent may be needed.
+
+The application-level "unlock" is not a secret and is not the same as BLE
+bonding: it is a fixed three-byte write (`4D 47 53`, ASCII `MGS`) that the
+official app sends to `FF10` on V008+ firmware.
 
 ## Setup
 
