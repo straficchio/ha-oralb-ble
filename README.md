@@ -44,13 +44,16 @@ you a web terminal inside Home Assistant:
 2. Paste this into the terminal:
 
    ```bash
-   curl -L https://github.com/straficchio/ha-oralb-ble/archive/refs/heads/master.tar.gz \
-     -o /tmp/oralb.tar.gz
+   wget -O /tmp/oralb.tar.gz \
+     https://github.com/straficchio/ha-oralb-ble/archive/refs/heads/master.tar.gz
    mkdir -p /config/custom_components
    tar -xzf /tmp/oralb.tar.gz -C /tmp
    cp -r /tmp/ha-oralb-ble-master/custom_components/oralb_ble \
      /config/custom_components/
    ```
+
+   If `wget` is not available, replace the first line with
+   `curl -L -o /tmp/oralb.tar.gz <same URL>`.
 
 3. Restart Home Assistant: **Settings → System → Restart** (or `ha core
    restart` in the terminal).
