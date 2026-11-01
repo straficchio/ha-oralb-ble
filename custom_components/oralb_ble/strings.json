@@ -1,0 +1,88 @@
+{
+  "config": {
+    "flow_title": "{name}",
+    "step": {
+      "confirm": {
+        "title": "Add Oral-B toothbrush",
+        "description": "Add **{name}**?\n\nAddress: `{address}`\nModel: {model}\nProtocol: {protocol}"
+      },
+      "user": {
+        "title": "Add Oral-B toothbrush",
+        "description": "Pick a brush that is currently advertising, or enter its Bluetooth MAC address.",
+        "data": {
+          "discovered": "Discovered brush",
+          "address": "MAC address (manual)",
+          "name": "Name"
+        }
+      }
+    },
+    "error": {
+      "invalid_mac": "That is not a valid Bluetooth MAC address.",
+      "no_device_selected": "Select a discovered brush or enter a MAC address.",
+      "device_not_found": "That brush is no longer visible. Try again."
+    },
+    "abort": {
+      "already_configured": "This brush is already configured.",
+      "not_supported": "This device does not look like an Oral-B brush."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Oral-B BLE options",
+        "data": {
+          "poll_interval": "Battery/state poll interval",
+          "session_sync": "Sync stored brushing sessions",
+          "live_sensors": "Enable live advertisement sensors",
+          "session_slots": "Session slots to scan",
+          "pair_on_connect": "Pair on connect (try this if reads fail)"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "battery": {"name": "Battery"},
+      "battery_time_remaining": {"name": "Battery time remaining"},
+      "state": {"name": "State"},
+      "mode": {"name": "Brushing mode"},
+      "pressure": {"name": "Pressure"},
+      "brushing_time": {"name": "Brushing time"},
+      "quadrant": {"name": "Quadrant"},
+      "smiley": {"name": "Smiley"},
+      "last_session_duration": {"name": "Last session duration"},
+      "last_session_start": {"name": "Last session start"},
+      "last_session_mode": {"name": "Last session mode"},
+      "last_session_high_pressure_time": {"name": "Last session high pressure time"},
+      "last_session_low_pressure_time": {"name": "Last session low pressure time"},
+      "last_session_average_pressure": {"name": "Last session average pressure"},
+      "last_session_maximum_pressure": {"name": "Last session maximum pressure"},
+      "last_session_high_pressure_events": {"name": "Last session high pressure events"},
+      "last_session_low_pressure_events": {"name": "Last session low pressure events"},
+      "last_session_battery": {"name": "Last session battery"},
+      "sessions_today": {"name": "Sessions today"},
+      "total_sessions": {"name": "Total sessions"},
+      "model": {"name": "Model"},
+      "protocol": {"name": "Protocol"},
+      "firmware": {"name": "Firmware"},
+      "bootloader": {"name": "Bootloader"},
+      "secondary_firmware": {"name": "Secondary firmware"},
+      "hardware_version": {"name": "Hardware version"},
+      "device_uuid": {"name": "Device UUID"},
+      "rssi": {"name": "Signal strength"},
+      "last_sync": {"name": "Last session sync"},
+      "last_seen": {"name": "Last advertisement"}
+    },
+    "binary_sensor": {
+      "brushing": {"name": "Brushing"},
+      "charging": {"name": "Charging"},
+      "new_sessions": {"name": "New sessions available"},
+      "in_range": {"name": "In range"},
+      "high_pressure": {"name": "High pressure"}
+    },
+    "button": {
+      "sync_sessions": {"name": "Sync sessions"},
+      "sync_time": {"name": "Sync clock"}
+    }
+  }
+}
