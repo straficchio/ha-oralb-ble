@@ -7,6 +7,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from homeassistant.data_entry_flow import FlowResultType
+from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.oralb_ble.const import DOMAIN
 
@@ -108,3 +109,28 @@ async def test_manual_flow_invalid_mac(hass):
         )
     assert result["type"] is FlowResultType.FORM
     assert result["errors"] == {"address": "invalid_mac"}
+
+
+@pytest.mark.asyncio
+async def test_options_flow_pair_on_connect(hass):
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        title="Test Brush",
+        unique_id="78:DB:2F:C2:48:BE",
+        data={"address": "78:DB:2F:C2:48:BE", "name": "Test Brush"},
+    )
+    entry.add_to_hass(hass)
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    assert result["type"] is FlowResultType.FORM
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        {
+            "poll_interval": 360,
+            "session_sync": True,
+            "live_sensors": True,
+            "session_slots": 250,
+            "pair_on_connect": True,
+        },
+    )
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    assert result["data"]["pair_on_connect"] is True
