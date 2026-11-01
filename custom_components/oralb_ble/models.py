@@ -64,6 +64,20 @@ class OralBData:
     connected: bool = False
 
     @property
+    def sector_index(self) -> int | None:
+        """Numeric sector index: 0 none, 1-6 first-sixth, 7 last."""
+        return {
+            "none": 0,
+            "1st": 1,
+            "2nd": 2,
+            "3rd": 3,
+            "4th": 4,
+            "5th": 5,
+            "6th": 6,
+            "last": 7,
+        }.get(self.quadrant)
+
+    @property
     def brushing(self) -> bool:
         return self.state_raw == 3
 

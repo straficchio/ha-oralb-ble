@@ -406,6 +406,110 @@ integration maps the most useful ones to sensors and fires an
 
 ---
 
+## 5a. Sectors, quadrant timers and the mouth map
+
+There are **two different concepts** in the app, and it is important not to
+confuse them:
+
+### The sector/quadrant timer (firmware)
+
+The brush divides a brushing session into a small number of **sectors**
+(also called quadrants). It runs a timer per sector, vibrates when a sector
+ends, and advances to the next one. This is a *timer*, not a position sensor.
+
+Encoding:
+
+- Advertisement byte 8 (`progress`) low 3 bits: current sector.
+  `0` = none, `1`–`6` = first–sixth, `7` = "last" sentinel.
+- Advertisement byte 10 (`total_quadrants`) low 3 bits: total sectors.
+- `FF09`: `[quadrant, ?, total_quadrants]`.
+- Session record: `number_of_sectors` is the 3-bit field at bits 13–15 of the
+  `configured_time` word (see §5).
+- `FF26` quadrant timers: eight uint16 LE values, one per sector. The app's
+  `QuadrantTimer` model supports `PROFESSIONAL` (fixed 30 s per sector),
+  `CUSTOM` (the eight values), and `DISABLE`.
+
+The app's `CharacteristicParser.L0()` maps the progress byte to
+`ToothbrushQuadrant`:
+
+| progress & 7 | enum | meaning |
+|---:|---|---|
+| 0 | `NO_QUADRANTS_DEFINED` | no active sector |
+| 1 | `FIRST_QUADRANT` | 1st |
+| 2 | `SECOND_QUADRANT` | 2nd |
+| 3 | `THIRD_QUADRANT` | 3rd |
+| 4 | `FOURTH_QUADRANT` | 4th |
+| 5 | `FIFTH_QUADRANT` | 5th |
+| 6 | `SIXTH_QUADRANT` | 6th |
+| 7 | `LAST_QUADRANT` | last (real number = total count, or 4 if absent) |
+
+The enum also has `SEVENTH_QUADRANT`, `EIGHTH_QUADRANT` and
+`UNKNOWN`/`NO_QUADRANTS_DEFINED`, so firmware can support up to eight
+sectors even though the 3-bit advertisement field only names six plus the
+"last" sentinel.
+
+This is what the Home Assistant integration exposes as:
+
+- `sensor.quadrant` — `none`, `1st` … `6th`, `last`
+- `sensor.sector` — numeric 0–7
+- `sensor.sectors_per_session` — total sectors
+- `sensor.last_session_sectors` — sectors stored with the last session
+
+### The mouth coverage map (phone-side AI)
+
+The app's coloured mouth map is **not** sent by the brush. It is computed on
+the phone from the handle's motion data:
+
+1. The brush streams accelerometer/gyro/dashboard data over `FF0D`
+   (`SensorData`) and `FF0E` (`DashboardDataStreamChunk`).
+2. The app feeds it to the TensorFlow "Comino" model
+   (`assets/tensorflowmodels`, `assets/pt20c25hz25ws`, …).
+3. The model outputs one of 20 `CominoZone` classes: 16 detailed zones
+   (top/bottom × right/centre/left × outside/onside/inside), three
+   aggregate zones (`RIGHT_OUTSIDE`, `LEFT_OUTSIDE`, `CENTER_OUTSIDE`) and
+   `OUT_OF_MOUTH`.
+4. `SixteenZoneCoverageRecorder` accumulates brushing time per detailed
+   zone; `SixZoneCoverageRecorder` aggregates that to six zones:
+   top-right, bottom-right, bottom-left, top-left, top-centre,
+   bottom-centre (+ out-of-mouth / tongue).
+5. Coverage per zone is:
+
+   ```
+   coverage % = min(brush_time, completion_time) / completion_time * 100
+   ```
+
+   The app stores `brushTime`, `pressureTime` and `completionTime` per zone
+   (`SixZone` / `SixteenZone` models) and the room database tables
+   `RoomSixZoneCoverage` / `RoomSixteenZoneCoverage`.
+6. The computed map is uploaded to the cloud as the `zonedBrushTime` and
+   `zonedPressureTime` AWSJSON fields of the `CreateBrushingSession`
+   mutation. It is not a GATT field.
+
+The session record itself only contains `number_of_sectors` and the
+configured time; it does **not** contain per-zone coverage percentages.
+Therefore a local integration can report the sector timer but cannot
+reconstruct the app's coverage map without also capturing and running the
+motion model.
+
+### What a local integration can and cannot do
+
+| Data | Available over BLE? | Where |
+|---|---|---|
+| Current sector / total sectors | yes | advertisement byte 8/10, `FF09` |
+| Per-sector timer configuration | yes | `FF26` |
+| Session duration, pressure, mode, sector count | yes | `FF29` session record |
+| Per-zone coverage percentages | **no** | computed by the phone from `FF0D`/`FF0E` + TFLite |
+| Raw accelerometer/gyro/dashboard stream | yes | `FF0D`, `FF0E` |
+| The app's 6/16-zone map | **no** | app-side `Comino` model + database |
+
+Reconstructing the map on a Home Assistant host is theoretically possible:
+record `FF0D`/`FF0E` during a session and run the same `Comino` model
+(`libtptGRU3.so` / `libtptGRU6.so` and the TFLite assets) offline. That is a
+separate project; the integration in this workspace deliberately stops at
+the sector timer and session statistics.
+
+---
+
 ## 6. Metadata
 
 Metadata is read with `FF21 = 05 <id>` followed by a read of `FF29`.

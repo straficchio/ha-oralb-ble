@@ -132,6 +132,34 @@ SENSORS: tuple[OralBSensorDescription, ...] = (
         live=True,
     ),
     OralBSensorDescription(
+        key="sector",
+        translation_key="sector",
+        name="Sector",
+        icon="mdi:view-grid",
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: data.sector_index,
+        live=True,
+    ),
+    OralBSensorDescription(
+        key="sectors",
+        translation_key="sectors",
+        name="Sectors per session",
+        icon="mdi:view-grid-outline",
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: data.total_quadrants,
+        live=True,
+    ),
+    OralBSensorDescription(
+        key="last_session_sectors",
+        translation_key="last_session_sectors",
+        name="Last session sectors",
+        icon="mdi:view-grid-outline",
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: (
+            data.last_session.number_of_sectors if data.last_session else None
+        ),
+    ),
+    OralBSensorDescription(
         key="smiley",
         translation_key="smiley",
         name="Smiley",

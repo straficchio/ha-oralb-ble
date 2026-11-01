@@ -58,5 +58,7 @@ async def test_setup_creates_entities(hass, mock_bluetooth):
 
     assert hass.states.get("sensor.test_brush_state").state == "running"
     assert hass.states.get("sensor.test_brush_brushing_time").state == "90"
+    assert hass.states.get("sensor.test_brush_sector").state == "2"
+    assert hass.states.get("sensor.test_brush_sectors_per_session").state == "4"
     assert hass.states.get("binary_sensor.test_brush_brushing").state == "on"
     assert hass.states.get("binary_sensor.test_brush_high_pressure").state == "on"

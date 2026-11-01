@@ -120,11 +120,14 @@ still created and the first poll runs when it advertises again.
 | Brushing mode | daily clean, sensitive, gum care, … |
 | Pressure | low / normal / high / button pressed |
 | Brushing time | live timer from the advertisement |
-| Quadrant | current quadrant/sector |
+| Quadrant | current quadrant/sector (none, 1st…6th, last) |
+| Sector | numeric current sector (0 none, 1–6, 7 last) |
+| Sectors per session | total sectors reported by the brush (usually 4) |
 | Smiley | firmware smiley face |
 | Last session duration | seconds |
 | Last session start | timestamp |
 | Last session mode | mode used |
+| Last session sectors | number of sectors stored with the session |
 | Last session high/low pressure time | seconds |
 | Last session average/maximum pressure | mN |
 | Last session high/low pressure events | count |

@@ -15,7 +15,7 @@
   "requirements": [
     "bleak-retry-connector>=3.5.0"
   ],
-  "version": "0.1.4",
+  "version": "0.1.5",
   "bluetooth": [
     {
       "manufacturer_id": 220,
