@@ -44,6 +44,7 @@ async def test_setup_creates_entities(hass, mock_bluetooth):
     assert "binary_sensor.test_brush_in_range" in states
     assert "button.test_brush_sync_sessions" in states
     assert "button.test_brush_sync_clock" in states
+    assert "button.test_brush_pair_test_connection" in states
 
     coordinator = entry.runtime_data
     info = MagicMock()

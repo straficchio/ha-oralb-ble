@@ -82,7 +82,8 @@
     },
     "button": {
       "sync_sessions": {"name": "Sync sessions"},
-      "sync_time": {"name": "Sync clock"}
+      "sync_time": {"name": "Sync clock"},
+      "pair": {"name": "Pair / test connection"}
     }
   }
 }

@@ -79,13 +79,15 @@ performs the app-level unlock (`MGS` written to `FF10`) itself.
 
 If a read fails with an authentication/insufficient-encryption error:
 
-1. Open **Settings → Devices & Services → Oral-B BLE → Configure** and enable
-   **Pair on connect**. This makes the integration ask BlueZ to bond on the
-   next connection. No shell needed.
-2. Close the Oral-B phone app and, if the brush is still bonded to the phone,
+1. Press the **Pair / test connection** button on the device page. It asks
+   BlueZ to bond and then reads the live values. No shell needed.
+2. If that works but later reads still fail, open **Settings → Devices &
+   Services → Oral-B BLE → Configure** and enable **Pair on connect**, so
+   every poll bonds first.
+3. Close the Oral-B phone app and, if the brush is still bonded to the phone,
    remove it from the phone's Bluetooth settings. A brush accepts one active
    connection at a time.
-3. Check **Settings → System → Logs** for the integration's debug message. If
+4. Check **Settings → System → Logs** for the integration's debug message. If
    bonding still fails, the brush may use a pairing variant that BlueZ cannot
    complete headlessly; a Bluetooth proxy or a USB adapter with a working
    BlueZ agent may be needed.
@@ -146,6 +148,9 @@ still created and the first poll runs when it advertises again.
 
 - **Sync sessions** — connect and scan the stored session slots now.
 - **Sync clock** — write the current time and timezone to the brush.
+- **Pair / test connection** — connect with bonding enabled and read the live
+  values. This is the web-UI equivalent of "pair the brush"; use it if the
+  sensors stay empty.
 
 ## Events
 

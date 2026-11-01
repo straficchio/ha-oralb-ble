@@ -37,6 +37,13 @@ BUTTONS: tuple[OralBButtonDescription, ...] = (
         icon="mdi:clock-check",
         press_fn=lambda coordinator: coordinator.async_sync_time(),
     ),
+    OralBButtonDescription(
+        key="pair",
+        translation_key="pair",
+        name="Pair / test connection",
+        icon="mdi:bluetooth-connect",
+        press_fn=lambda coordinator: coordinator.async_pair(),
+    ),
 )
 
 

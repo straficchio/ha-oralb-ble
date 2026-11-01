@@ -406,6 +406,33 @@ class OralBCoordinator(DataUpdateCoordinator[OralBData]):
         finally:
             await client.disconnect()
 
+    async def async_pair(self) -> None:
+        """Connect with bonding enabled and read the live values.
+
+        This is the web-UI equivalent of "pair the brush": it asks BlueZ to
+        bond (Just Works for Oral-B) and then verifies that GATT reads work.
+        """
+        client = OralBClient(self.hass, self.address, self._name)
+        try:
+            await client.connect(pair=True)
+            if self.data.protocol is None:
+                detected = await client.read_protocol()
+                if detected is not None:
+                    self.data.protocol = detected
+            protocol = self.data.protocol or 9
+            await client.unlock(protocol)
+            await client.extend_connection(60)
+            live = await client.read_live(protocol)
+            self._apply_live(live)
+            self.data.connected = True
+            self.async_set_updated_data(self.data)
+        except OralBConnectionError as err:
+            _LOGGER.warning("Pair/test connection failed for %s: %s", self.address, err)
+            raise
+        finally:
+            await client.disconnect()
+            self.data.connected = False
+
     async def async_sync_time(self) -> None:
         """Write the current time and timezone to the brush."""
         client = OralBClient(self.hass, self.address, self._name)
