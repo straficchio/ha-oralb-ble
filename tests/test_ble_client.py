@@ -96,8 +96,10 @@ async def test_read_live_and_metadata(hass):
     ), patch(
         "custom_components.oralb_ble.ble.establish_connection",
         return_value=fake,
-    ):
-        await client.connect()
+    ) as connect:
+        await client.connect(pair=True)
+        connect.assert_awaited_once()
+        assert connect.await_args.kwargs["pair"] is True
         live = await client.read_live(8)
         meta = await client.read_metadata_bundle(8)
         await client.disconnect()
